@@ -1,0 +1,290 @@
+credentials:
+  system:
+    domainCredentials:
+    - credentials:
+      - basicSSHUserPrivateKey:
+          id: "59411e8e-742e-4e83-b7c3-f0327e8d285e"
+          privateKeySource:
+            directEntry:
+              privateKey: "{${jenkins_spot_agent_ssh_key}}"
+          scope: SYSTEM
+          username: "ec2-user"
+jenkins:
+  agentProtocols:
+  - "JNLP4-connect"
+  - "Ping"
+  authorizationStrategy:
+    loggedInUsersCanDoAnything:
+      allowAnonymousRead: false
+  clouds:
+  - eC2Fleet:
+      addNodeOnlyIfRunning: false
+      alwaysReconnect: false
+      cloudStatusIntervalSec: 10
+      computerConnector:
+        sSHConnector:
+          credentialsId: "59411e8e-742e-4e83-b7c3-f0327e8d285e"
+          launchTimeoutSeconds: 60
+          maxNumRetries: 10
+          port: 22
+          retryWaitTime: 15
+          sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
+      disableTaskResubmit: false
+      fleet: "sfr-5ffda003-8a88-44b8-86a0-57be5557ee9c"
+      idleMinutes: 5
+      initOnlineCheckIntervalSec: 15
+      initOnlineTimeoutSec: 180
+      labelString: "spot-agent"
+      maxSize: 3
+      maxTotalUses: -1
+      minSize: 1
+      minSpareSize: 0
+      name: "SpotFleet"
+      noDelayProvision: false
+      numExecutors: 1
+      oldId: "a796a6be-3a7e-4cd8-9f6f-ec3ffc6d858b"
+      privateIpUsed: true
+      region: "ap-northeast-2"
+      restrictUsage: false
+      scaleExecutorsByWeight: false
+  crumbIssuer:
+    standard:
+      excludeClientIPFromCrumb: false
+  disableRememberMe: false
+  labelAtoms:
+  - name: "built-in"
+  - name: "i-0b4738dcb88a9b727"
+  - name: "spot-agent"
+  markupFormatter: "plainText"
+  mode: EXCLUSIVE
+  myViewsTabBar: "standard"
+  numExecutors: 2
+  primaryView:
+    all:
+      name: "all"
+  projectNamingStrategy: "standard"
+  quietPeriod: 5
+  remotingSecurity:
+    enabled: true
+  scmCheckoutRetryCount: 0
+  securityRealm:
+    local:
+      allowsSignup: false
+      enableCaptcha: false
+      users:
+      - id: "lgbss"
+        password: ${jenkins_admin_pwd}
+        properties:
+        - "apiToken"
+        - mailer:
+            emailAddress: "rnlduaeo@naver.com"
+        - preferredProvider:
+            providerId: "default"
+        - timezone:
+            timeZoneName: "Asia/Tokyo"
+  slaveAgentPort: 50000
+  views:
+  - all:
+      name: "all"
+  viewsTabBar: "standard"
+globalCredentialsConfiguration:
+  configuration:
+    providerFilter: "none"
+    typeFilter: "none"
+security:
+  apiToken:
+    creationOfLegacyTokenEnabled: false
+    tokenGenerationOnCreationEnabled: false
+    usageStatisticsEnabled: true
+  gitHooks:
+    allowedOnAgents: false
+    allowedOnController: false
+  gitHostKeyVerificationConfiguration:
+    sshHostKeyVerificationStrategy: "knownHostsFileVerificationStrategy"
+  sSHD:
+    port: -1
+unclassified:
+  buildDiscarders:
+    configuredBuildDiscarders:
+    - "jobBuildDiscarder"
+  buildStepOperation:
+    enabled: false
+  buildTimestamp:
+    enableBuildTimestamp: true
+    pattern: "yyyy-MM-ddHHmmss"
+    timezone: "Etc/GMT-9"
+  email-ext:
+    adminRequiredForTemplateTesting: false
+    allowUnregisteredEnabled: false
+    charset: "UTF-8"
+    debugMode: false
+    defaultBody: |-
+      $PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS:
+
+      Check console output at $BUILD_URL to view the results.
+    defaultContentType: "text/plain"
+    defaultSubject: "$PROJECT_NAME - Build # $BUILD_NUMBER - $BUILD_STATUS!"
+    defaultTriggerIds:
+    - "hudson.plugins.emailext.plugins.trigger.FailureTrigger"
+    maxAttachmentSize: -1
+    maxAttachmentSizeMb: -1
+    precedenceBulk: false
+    watchingEnabled: false
+  fingerprints:
+    fingerprintCleanupDisabled: false
+    storage: "file"
+  gitHubConfiguration:
+    apiRateLimitChecker: ThrottleForNormalize
+  gitSCM:
+    addGitTagAction: false
+    allowSecondFetch: false
+    createAccountBasedOnEmail: false
+    disableGitToolChooser: false
+    hideCredentials: false
+    showEntireCommitSummaryInChanges: false
+    useExistingAccountWithSameEmail: false
+  globalTimeOutConfiguration:
+    operations:
+    - "abortOperation"
+    overwriteable: false
+  injectionConfig:
+    allowUntrusted: false
+    enabled: false
+    injectCcudExtension: false
+    injectMavenExtension: false
+  junitTestResultStorage:
+    storage: "file"
+  mailer:
+    charset: "UTF-8"
+    useSsl: false
+    useTls: false
+  pluginImpl:
+    enableCredentialsFromNode: false
+  pollSCM:
+    pollingThreadCount: 10
+  timestamper:
+    allPipelines: false
+    elapsedTimeFormat: "'<b>'HH:mm:ss.S'</b> '"
+    systemTimeFormat: "'<b>'HH:mm:ss'</b> '"
+tool:
+  git:
+    installations:
+    - home: "git"
+      name: "Default"
+  mavenGlobalConfig:
+    globalSettingsProvider: "standard"
+    settingsProvider: "standard"
+  sonarRunnerInstallation:
+    installations:
+    - name: "SonarQubeScanner-4.7.0"
+      properties:
+      - installSource:
+          installers:
+          - sonarRunnerInstaller:
+              id: "4.7.0.2747"
+  jobs:
+  - script: >
+      pipelineJob('Docker Image Build Parent Pipeline') {
+        definition {
+          cps {
+            script('''
+              pipeline {
+                // using the fleet instances that has the label 'spot-agent'
+                agent {
+                  label 'spot-agent'
+                }
+                stages {
+                    stage('Clone source') {
+                      steps {
+                        sh 'git clone <GIT-URL> ${WORKSPACE}/pet-clinic'
+                      }
+                    }
+                    
+                    stage('SonarQube analysis') {
+                      //def scannerHome = tool 'SonarScanner 4.0';
+                      steps{
+                        withSonarQubeEnv('sonarqube:9.7.1') { 
+                          // If you have configured more than one global server connection, you can specify its name
+                          //sh "${scannerHome}/bin/sonar-scanner"
+                          sh "cd ${WORKSPACE}/pet-clinic && ./mvnw clean verify sonar:sonar -Dsonar.projectKey=bss-project -Dsonar.host.url=http://13.125.211.127:9000 -Dsonar.login=sqp_945ad690c92d23fb70da95c8f59c0a4a93f33215"
+                        }
+                      }
+                    }
+                    
+                    stage('Docker build') {
+                      steps {
+                        sh 'echo $WORKSPACE'
+                        sh 'cd ${WORKSPACE}/pet-clinic && ./mvnw spring-boot:build-image -Dspring-boot.build-image.imageName=lgbss/petclinic:$BUILD_TIMESTAMP'    
+                      }
+                    }
+                    
+                    
+                    stage('ECR push') {
+                      steps {
+                        sh 'aws ecr get-login-password --region ap-northeast-2 | docker login --username AWS --password-stdin 496772517886.dkr.ecr.ap-northeast-2.amazonaws.com'
+                        sh 'docker tag lgbss/petclinic:$BUILD_TIMESTAMP 496772517886.dkr.ecr.ap-northeast-2.amazonaws.com/petclinic:$BUILD_TIMESTAMP'
+                        sh 'docker push 496772517886.dkr.ecr.ap-northeast-2.amazonaws.com/petclinic:$BUILD_TIMESTAMP'
+                      }
+                    }
+                    
+                    stage('Update ImageTag in Helm Chart') {
+                      steps {
+                        sh "echo 'Updating image tag in helm chart to new $BUILD_TIMESTAMP'"
+                        build(job: 'updateHelm', parameters: [string(name: 'DOCKERTAG', value: env.$BUILD_TIMESTAMP)])
+                      }
+                    }
+                }
+                    
+                post { 
+                      always { 
+                          sh 'rm -rf $WORKSPACE/pet-clinic'
+                      }
+                  }
+              }'''.stripIndent())
+              sandbox()
+          }
+        }
+      }
+  - script: >
+      pipelineJob('Helm Chart Image Tag Update Child Pipeline') {
+        definition {
+          cps {
+            script('''
+              pipeline {
+                  // using the fleet instances that has the label 'spot-agent'
+                  agent {
+                    label 'spot-agent'
+                  }
+                  
+                  parameters {
+                    string(name: 'DOCKERTAG', description: 'from parent jenkins job')
+                  }
+                  stages {
+                      stage('Clone source') {
+                        steps {
+                          sh 'git clone codecommit::ap-northeast-2://petclinic-helm ${WORKSPACE}/petclinic-helm'
+                        }
+                      }
+                      
+                      stage('Update Git') {
+                        //def scannerHome = tool 'SonarScanner 4.0';
+                        steps{
+                          catchError(buildResult: 'SUCCESS', stageResult: 'FAILURE') { 
+                              sh "cd ${WORKSPACE}/petclinic-helm && sed -i 's|tag: .*|tag: '${params.DOCKERTAG}'|g' values.yaml"
+                              sh "cd ${WORKSPACE}/petclinic-helm && cat values.yaml"
+                              sh "cd ${WORKSPACE}/petclinic-helm && git add . && git commit -m 'Done by Jenkins Job updateHelm: ${env.BUILD_ID}' && git push"
+                          }
+                        }
+                      }
+                    }
+                      
+                  post { 
+                        always { 
+                            sh 'rm -rf ${WORKSPACE}/petclinic-helm'
+                        }
+                    }
+              }'''.stripIndent())
+              sandbox()
+          }
+        }
+      }
