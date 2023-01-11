@@ -78,6 +78,4 @@ plugins:
   - artifactId: workflow-step-api
   - artifactId: workflow-support
   - artifactId: ws-cleanup
-  - artifactId: snyk-security-scanner
   - artifactId: build-timestamp
-  

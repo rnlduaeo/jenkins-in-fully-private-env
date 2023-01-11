@@ -87,9 +87,6 @@ EOF
 
 resource "aws_launch_template" "jenkins-spot-agent-launch-template" {
   name                    = "jenkins-spot-agent-launch-template"
-  disable_api_stop        = true
-  disable_api_termination = true
-  ebs_optimized           = "true"
   image_id                = var.jenkins_agent_ami_id
   instance_type           = "t2.medium"
   key_name                = aws_key_pair.jenkins-ssh.key_name
@@ -100,19 +97,6 @@ resource "aws_launch_template" "jenkins-spot-agent-launch-template" {
     ebs {
       volume_size = 50
     }
-  }
-  
-  cpu_options {
-    core_count       = 4
-    threads_per_core = 2
-  }
-
-  credit_specification {
-    cpu_credits = "standard"
-  }
-
-  elastic_gpu_specifications {
-    type = "test"
   }
 
   iam_instance_profile {

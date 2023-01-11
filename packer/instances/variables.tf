@@ -20,3 +20,9 @@ variable "jenkins_agent_ami_id" {
   type        = string
   default     = ""
 }
+
+variable "jenkins_controller_ami_id" {
+  description = "Jenkins Controller AMI ID"
+  type        = string
+  default     = ""
+}

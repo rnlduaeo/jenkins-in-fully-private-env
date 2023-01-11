@@ -14,31 +14,29 @@ sudo yum upgrade
 # Install Java:
 sudo amazon-linux-extras install java-openjdk11 -y
 
-# Install Jenkins
-sudo yum install jenkins -y
+# Install Jenkins with specific version info to avoid 
+sudo yum install jenkins-2.375.1-1.1 -y
 
 # Create directories for Jenkins
 sudo -ujenkins mkdir /var/cache/jenkins/tmp
 sudo -ujenkins mkdir /var/cache/jenkins/heapdumps
 sudo -ujenkins mkdir /var/lib/jenkins/plugins
 
-# Update JENKINS_JAVA_OPTIONS
-sudo sed -i 's|JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true.*|JENKINS_JAVA_OPTIONS="-Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Djenkins.install.runSetupWizard=false -Djava.io.tmpdir=/var/cache/jenkins/tmp/ -Dorg.apache.commons.jelly.tags.fmt.timeZone=Asia/Seoul -Duser.timezone=Asia/Seoul"|' /etc/sysconfig/jenkins
+# allow the jenkins plugin manager to copy the plugins to target directory
+sudo chmod 777 /var/lib/jenkins/plugins
 
-# Update JENKINS_ARGS
-sudo sed -i 's|.*JENKINS_ARGS=.*|JENKINS_ARGS="--pluginroot=/var/cache/jenkins/plugins"|' /etc/sysconfig/jenkins
+# Update JENKINS_JAVA_OPTIONS and JENKINS_OPTS
+cat <<EOF >$HOME/override.conf
+[Service]
+Environment="JAVA_OPTS=-Djava.awt.headless=true -Djava.net.preferIPv4Stack=true -Djenkins.install.runSetupWizard=false -Djava.io.tmpdir=/var/cache/jenkins/tmp/ -Dorg.apache.commons.jelly.tags.fmt.timeZone=Asia/Seoul -Duser.timezone=Asia/Seoul"
+Environment="JENKINS_OPTS=--pluginroot=/var/cache/jenkins/plugins"
+EOF
+sudo mkdir -m 644 /etc/systemd/system/jenkins.service.d
+sudo cp $HOME/override.conf /etc/systemd/system/jenkins.service.d/
 
 # Download jenkins-plugin-manager
-wget https://github.com/jenkinsci/plugin-installation-manager-tool/releases/tag/2.12.9 -O $HOME/jenkins-plugin-manager.jar
+wget https://github.com/jenkinsci/plugin-installation-manager-tool/releases/download/2.12.9/jenkins-plugin-manager-2.12.9.jar -O $HOME/jenkins-plugin-manager.jar
 
-# Run the jenkins-plugin-manager 고쳐야 함 - 여기서부터 확인 
-java -jar jenkins-plugin-manager.jar --jenkins-version 2.263.4 --plugin-file plugins.yaml --plugin-download-directory /var/lib/jenkins/plugins
+# Run the jenkins-plugin-manager
+java -jar jenkins-plugin-manager.jar --war /usr/share/java/jenkins.war --jenkins-version 2.375.1 --plugin-file plugins.yaml --plugin-download-directory /var/lib/jenkins/plugins --verbose
 
-# Update JENKINS_HOME ownership
-chown jenkins:jenkins /var/lib/jenkins
-
-# enable the Jenkins service to start at boot with the command
-sudo systemctl enable jenkins
-
-# start the Jenkins service with the command
-sudo systemctl start jenkins
