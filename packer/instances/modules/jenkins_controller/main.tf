@@ -6,28 +6,32 @@ data "aws_ssm_parameter" "jenkins-pwd" {
     name = "jenkins-pwd"
 }
 
-data "template_file" jenkins_configuration_def {
+# data "template_file" jenkins_configuration_def {
 
-  template = file("${path.module}/files/jenkins.yaml.tpl")
+#   template = file("${path.module}/files/jenkins.yaml.tpl")
 
-  vars = {
-    jenkins-agent-private-key = data.aws_ssm_parameter.jenkins-spot-agent-ssh-key.value
-    jenkins-pwd               = data.aws_ssm_parameter.jenkins-pwd.value
-    spot-request-id           = var.spot_request_id
-  }
-}
+#   vars = {
+#     jenkins-agent-private-key = data.aws_ssm_parameter.jenkins-spot-agent-ssh-key.value
+#     jenkins-pwd               = data.aws_ssm_parameter.jenkins-pwd.value
+#     spot-request-id           = var.spot_request_id
+#   }
+# }
 
 resource "null_resource" "render_template" {
   triggers = {
     src_hash = file("${path.module}/files/jenkins.yaml.tpl")
     always_run = timestamp()
   }
-  depends_on = [data.template_file.jenkins_configuration_def]
 
   provisioner "local-exec" {
     command = <<EOF
 tee ${path.module}/files/jenkins.yaml <<ENDF
-${data.template_file.jenkins_configuration_def.rendered}
+${templatefile("${path.module}/files/jenkins.yaml.tpl", 
+              {
+                jenkins-agent-private-key = data.aws_ssm_parameter.jenkins-spot-agent-ssh-key.value,
+                jenkins-pwd               = data.aws_ssm_parameter.jenkins-pwd.value,
+                spot-request-id           = var.spot_request_id
+              })}
 EOF
   }
 }

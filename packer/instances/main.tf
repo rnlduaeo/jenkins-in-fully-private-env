@@ -12,3 +12,4 @@ module "jenkins_controller" {
   spot_request_id                 = module.jenkins_agent.spot-request-id
   vpc_id                          = var.vpc_id
 }
+
