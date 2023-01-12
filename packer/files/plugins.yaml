@@ -1,4 +1,5 @@
 plugins:
+  - artifactId: job-dsl
   - artifactId: ace-editor
   - artifactId: antisamy-markup-formatter
   - artifactId: apache-httpcomponents-client-4-api

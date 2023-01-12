@@ -10,4 +10,4 @@ PRIVATE_SUBNETS='["subnet-0758c0b4a477fe7e1","subnet-0e69d1d8ae049cccb","subnet-
 export TF_VAR_vpc_id="vpc-0bc7c4c30a5793bac"
 export TF_VAR_private_subnet_ids=${PRIVATE_SUBNETS}
 export TF_VAR_jenkins_agent_ami_id="ami-0a860a2421eae99d7"
-export TF_VAR_jenkins_controller_ami_id="ami-0acf00f8a3ffa5a60"
+export TF_VAR_jenkins_controller_ami_id="ami-0a88560cd29ff6e1c"

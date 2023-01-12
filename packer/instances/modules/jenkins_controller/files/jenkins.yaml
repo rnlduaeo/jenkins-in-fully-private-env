@@ -6,33 +6,13 @@ credentials:
           id: "59411e8e-742e-4e83-b7c3-f0327e8d285e"
           privateKeySource:
             directEntry:
-              privateKey: "{-----BEGIN RSA PRIVATE KEY-----
-MIIEpQIBAAKCAQEAxWR1zWiWHfI6hyEkuglxlJLHXPBRpuRrYRNNX/SXOehQA0v7
-RXxb7COdGKdBEZo0gU8OnwGEEn5v0U4nkEka+hcZQfXJuadN2vgJ6VlvtXoieibx
-ZaRSJAWMtg2G8jC/1tjkIvVwk0mbiiWOQ7xJaEwh0SJ+88Q4PRixpI9oRrUcMRue
-mNM3PiDR7beTDDuYEUbPZHUnl6uSGzfIoADJl/Pks+9Y3XTiqbCFAID9rIJCKJct
-Szvc87mw/oWL4ceiLr0joufEQtw/T7oGp+JMdE/gAEz+xZzQre0dpRjGeBmLb3XE
-B0MrQiIbNH7lduXNd6KzNOLq4yJwCElMkwQjLwIDAQABAoIBAQCdUyZ5IuSS1Z9E
-WGw3QpOeQSZYssnBZMkYxBOlaQKnCrvLBOIuTaHOIcxx+8xmxSsX7PTQUpr7Sn7A
-qbPq0fmIXqSo58dyCyCIZ60uqTPZxpB4H1XDFybIwwuVhk6J9cTQ7mlWW5zwJ3iq
-sKgk4Ir5b8R8NSxOCZRxTZ84c3w+7XAVnEWvMW7qtKTIl9wAy0/3Gmbw+2CDE5LQ
-RnvEiiPpH9qNJOuPAh2pxOCBFJPVzQkcUYVJT8D69hWMj7Ijw8MXdK3zyyxDZGKD
-aKqMUem9pLrxAONeWfLUBGL+xiE7MwgvzMZav+oBoR4zaqJi7G7LIQedHY1yrijS
-GZ6OGclxAoGBAOhObX5OXVjDzQMG4BO1A1ULOG3uVvA2gqvqUO5nueKMc1rKbZ3x
-XOcqU19kGanFvw57QZBmFuFY9t+bKC1+UMNkIRQaq21iFhWExFo67HwtUlsnO+fO
-4DC68XLdgUmHZntFm9cvSisaa0OCcbKjPzdceBoiHETPkt6LlkTjH7s7AoGBANmG
-a+00iZ6ga5cpRuKLQx5ms9lLXqhOgYymbANTGIbe8XM3K8NGIIbI/oHAGO0vFmgu
-FMi5y3MUAdArZhRMKlTrcpTRbAuvC41pePjd77JiHDnTChHSS9Es2TA4EJAYwlZ1
-rNhFf9f4D5xXbXShSyoAY1kfxIxf0pjd5O3UpfCdAoGBAJ3qIlhH4QCkKUqzc8Mx
-u1AmTne8GvEzvOQsZlOJwzyTiR7gmF9TYXnqtb4Uh7V2rQelFc6Y91i8ZyVdjZRP
-V4tbF3lZH8s9cBG0rN1BTNyk2mUIaJqNcKzvh44zsN1Q44NMsEE47kwaq2u60ptC
-iYiSnTn2kgzcpdQOQ1oUos9dAoGAe+3jq18VUPSgl5yCsCsbcESfDpusMEOZ92IR
-g8th2+VEtpmmKzjW6zO0HIQvL2J2Z6BpYvrHeKbbaZhwLfw+2ebSfwrZfcaa1FRV
-AaSgHYdcAW3E/OZNH71nd9tZRF92yP9+HDFsZsUDT9VXnO0P/7v83hgFSNyHBWTW
-OtG+QNkCgYEAipZ/N7S6RvapIIXEh/GURvrBgnlopjKoS4fbTVoA33MTGqKQ7qdJ
-cBYE4XTWQLT12S5wa+AXh5SXKz0VBB2h5GOKCNzvli9vZS5bwM3NYqDb5jhqwcZg
-WbBd5EKH7aNFOZifQ2perkVZ4LNEmT6GJ2GiDwMgiLtI/Y8Nnbbn564=
------END RSA PRIVATE KEY-----}"
+              privateKey: "{-----BEGIN OPENSSH PRIVATE KEY-----
+b3BlbnNzaC1rZXktdjEAAAAABG5vbmUAAAAEbm9uZQAAAAAAAAABAAAAMwAAAAtzc2gtZW
+QyNTUxOQAAACA5Boqw2PTPfIuk73YGKysQs8R+pkcfbEi6Yr4KtEJjuAAAAJhJQaWoSUGl
+qAAAAAtzc2gtZWQyNTUxOQAAACA5Boqw2PTPfIuk73YGKysQs8R+pkcfbEi6Yr4KtEJjuA
+AAAEBxENxqWN21jqysBWiB4En6UhqPYlkLKvhvRkanLAu10TkGirDY9M98i6TvdgYrKxCz
+xH6mRx9sSLpivgq0QmO4AAAAE2V4YW1wbGVAZXhhbXBsZS5jb20BAg==
+-----END OPENSSH PRIVATE KEY-----}"
           scope: SYSTEM
           username: "ec2-user"
 jenkins:
@@ -56,7 +36,7 @@ jenkins:
           retryWaitTime: 15
           sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
       disableTaskResubmit: false
-      fleet: sfr-4c7569f1-d6b0-4052-8e1b-77f199f917a7
+      fleet: sfr-c1492a5f-a03e-4ba9-b748-7fc1878aa4f8
       idleMinutes: 5
       initOnlineCheckIntervalSec: 15
       initOnlineTimeoutSec: 180
@@ -122,7 +102,7 @@ tool:
           installers:
           - sonarRunnerInstaller:
               id: "4.7.0.2747"
-  jobs:
+jobs:
   - script: >
       pipelineJob('Docker Image Build Parent Pipeline') {
         definition {
@@ -136,16 +116,14 @@ tool:
                 stages {
                     stage('Clone source') {
                       steps {
-                        sh 'echo '
-                        sh 'sleep 120'
-                        sh 'echo sleep is done'
+                        sh "echo 'Updating image tag in helm chart to new ${BUILD_TIMESTAMP}"
                       }
                     }
 
                     stage('Triggering child pipeline') {
                         steps {
-                            sh "echo 'Triggering child pipeline and pass the value > '"
-                            build(job: 'childPipeline', parameters: [string(name: 'DOCKERTAG', value: env.)])
+                            sh "echo 'Triggering child pipeline and pass the value > ${BUILD_TIMESTAMP}'"
+                            build(job: 'childPipeline', parameters: [string(name: 'DOCKERTAG', value: env.${BUILD_TIMESTAMP})])
                         }
                     }
                 }
@@ -171,7 +149,7 @@ tool:
                   stages {
                       stage('See the value') {
                         steps {
-                          sh 'echo child pipeline is triggered'
+                          sh 'echo child pipeline is triggered and passed variable is ${params.DOCKERTAG}'
                         }
                       }  
                   }

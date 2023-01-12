@@ -96,7 +96,7 @@ tool:
           installers:
           - sonarRunnerInstaller:
               id: "4.7.0.2747"
-  jobs:
+jobs:
   - script: >
       pipelineJob('Docker Image Build Parent Pipeline') {
         definition {
@@ -110,16 +110,14 @@ tool:
                 stages {
                     stage('Clone source') {
                       steps {
-                        sh 'echo $BUILD_TIMESTAMP'
-                        sh 'sleep 120'
-                        sh 'echo sleep is done'
+                        sh "echo 'Updating image tag in helm chart to new \$${BUILD_TIMESTAMP}"
                       }
                     }
 
                     stage('Triggering child pipeline') {
                         steps {
-                            sh "echo 'Triggering child pipeline and pass the value > $BUILD_TIMESTAMP'"
-                            build(job: 'childPipeline', parameters: [string(name: 'DOCKERTAG', value: env.$BUILD_TIMESTAMP)])
+                            sh "echo 'Triggering child pipeline and pass the value > \$${BUILD_TIMESTAMP}'"
+                            build(job: 'childPipeline', parameters: [string(name: 'DOCKERTAG', value: env.\$${BUILD_TIMESTAMP})])
                         }
                     }
                 }
@@ -145,7 +143,7 @@ tool:
                   stages {
                       stage('See the value') {
                         steps {
-                          sh 'echo child pipeline is triggered'
+                          sh 'echo child pipeline is triggered and passed variable is \$${params.DOCKERTAG}'
                         }
                       }  
                   }
