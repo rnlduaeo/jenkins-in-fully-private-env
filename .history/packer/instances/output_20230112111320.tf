@@ -1,6 +1,6 @@
-output "spot_request_id" {
+output "spot-request-id" {
   description = "spot request id"
-  value       = module.jenkins_agent.spot_request_id
+  value       = module.jenkins_agent.spot-request-id
 }
 
 output "jenkins_controller_ip" {

@@ -30,7 +30,7 @@ jenkins:
           retryWaitTime: 15
           sshHostKeyVerificationStrategy: "nonVerifyingKeyVerificationStrategy"
       disableTaskResubmit: false
-      fleet: ${spot_request_id}
+      fleet: ${spot-request-id}
       idleMinutes: 5
       initOnlineCheckIntervalSec: 15
       initOnlineTimeoutSec: 180
@@ -57,7 +57,7 @@ jenkins:
       allowsSignup: false
       users:
       - id: "lgbss"
-        password: ${jenkins_pwd}
+        password: ${jenkins-pwd}
         properties:
         - "apiToken"
         - timezone:

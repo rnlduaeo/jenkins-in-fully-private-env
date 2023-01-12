@@ -6,7 +6,7 @@ credentials:
           id: "59411e8e-742e-4e83-b7c3-f0327e8d285e"
           privateKeySource:
             directEntry:
-              privateKey: "{${jenkins_agent_private_key}}"
+              privateKey: "{${jenkins-agent-private-key}}"
           scope: SYSTEM
           username: "ec2-user"
 jenkins:
@@ -57,7 +57,7 @@ jenkins:
       allowsSignup: false
       users:
       - id: "lgbss"
-        password: ${jenkins_pwd}
+        password: ${jenkins-pwd}
         properties:
         - "apiToken"
         - timezone:

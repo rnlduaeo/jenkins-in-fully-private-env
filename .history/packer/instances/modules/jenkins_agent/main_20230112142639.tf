@@ -34,7 +34,7 @@ resource "aws_key_pair" "jenkins_agent" {
 }
 
 resource "aws_iam_instance_profile" "jenkins_agent" {
-  name = "jenkins-agent-instance-profile"
+  name = "jenkins_agent"
   role = aws_iam_role.jenkins_agent.name
 }
 

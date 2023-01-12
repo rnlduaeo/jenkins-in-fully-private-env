@@ -1,32 +1,61 @@
-data "aws_ssm_parameter" "jenkins_spot_agent_ssh_key" {
+data "aws_ssm_parameter" "jenkins-spot-agent-ssh-key" {
     name = "jenkins-spot-agent-ssh-key"
 }
 
-data "aws_ssm_parameter" "jenkins_pwd" {
+data "aws_ssm_parameter" "jenkins-pwd" {
     name = "jenkins-pwd"
 }
+
+# data "template_file" jenkins_configuration_def {
+
+#   template = file("${path.module}/files/jenkins.yaml.tpl")
+
+#   vars = {
+#     jenkins-agent-private-key = data.aws_ssm_parameter.jenkins-spot-agent-ssh-key.value
+#     jenkins-pwd               = data.aws_ssm_parameter.jenkins-pwd.value
+#     spot_request_id           = var.spot_request_id
+#   }
+# }
+
+
+# resource "null_resource" "render_template" {
+#   triggers = {
+#     src_hash = file("${path.module}/files/jenkins.yaml.tpl")
+#     always_run = timestamp()
+#   }
+#   depends_on = [data.template_file.jenkins_configuration_def]
+
+#   provisioner "local-exec" {
+#     command = <<EOF
+# tee ${path.module}/files/jenkins.yaml <<ENDF
+# ${data.template_file.jenkins_configuration_def.rendered}
+# EOF
+#   }
+# }
+
 resource "null_resource" "render_template" {
   triggers = {
     src_hash = file("${path.module}/files/jenkins.yaml.tpl")
     always_run = timestamp()
   }
-
   provisioner "local-exec" {
     command = <<EOF
 tee ${path.module}/files/jenkins.yaml <<ENDF
-${templatefile("${path.module}/files/jenkins.yaml.tpl", 
+template_file("${path.module}/files/jenkins.yaml.tpl", 
               {
-                jenkins_agent_private_key = data.aws_ssm_parameter.jenkins_spot_agent_ssh_key.value,
-                jenkins_pwd               = data.aws_ssm_parameter.jenkins_pwd.value,
-                spot_request_id           = var.spot_request_id
-              })}
+                config = {
+                  "jenkins-agent-private-key" = data.aws_ssm_parameter.jenkins-spot-agent-ssh-key.value
+                  "jenkins-pwd"               = data.aws_ssm_parameter.jenkins-pwd.value
+                  "spot_request_id"           = var.spot_request_id
+                }
+              })
 EOF
   }
 }
 
-resource "aws_key_pair" "jenkins_controller" {
+resource "aws_key_pair" "ssh_key" {
   key_name   = "jenkins-cont-key"
-  public_key = file("../tf-packer.pub")
+  public_key = file("../../../tf-packer.pub")
 }
 
 resource "aws_security_group" "jenkins_controller_sg" {
@@ -56,9 +85,9 @@ resource "aws_security_group" "jenkins_controller_sg" {
   }
 }
 
-resource "aws_iam_instance_profile" "jenkins_controller" {
-  name = "jenkins-controller"
-  role = aws_iam_role.jenkins_controller.name
+resource "aws_iam_instance_profile" "jenkins-controller-instance-profile" {
+  name = "jenkins-controller-instance-profile"
+  role = aws_iam_role.jenkins_controller_role.name
 }
 
 resource "aws_iam_policy" "policy" {
@@ -120,7 +149,7 @@ resource "aws_iam_policy" "policy" {
 })
 }
 
-resource "aws_iam_role" "jenkins_controller" {
+resource "aws_iam_role" "jenkins_controller_role" {
   name = "jenkins_controller_role"
   managed_policy_arns = [aws_iam_policy.policy.arn]
   path = "/"
@@ -143,47 +172,32 @@ EOF
 }
 
 resource "aws_instance" "jenkins_controller" {
-  key_name               = aws_key_pair.jenkins_controller.key_name
-  ami                    = var.jenkins_controller_ami_id
-  instance_type          = "m5.large"
-  subnet_id              = var.private_subnet_ids[0]
-  vpc_security_group_ids = [aws_security_group.jenkins_controller_sg.id]
-  iam_instance_profile   = aws_iam_instance_profile.jenkins_controller.name
-
-  provisioner "file" {
-    source      = "${path.module}/files/jenkins.yaml"
-    destination = "/home/ec2-user/jenkins.yaml"
-
-    connection {
-      type        = "ssh"
-      user        = "ec2-user"
-      private_key = file("../tf-packer")
-      host        = self.private_ip
-    }
-  }
+  key_name              = aws_key_pair.ssh_key.key_name
+  ami                   = var.jenkins_controller_ami_id
+  instance_type         = "m5.large"
+  subnet_id             = var.private_subnet_ids[0]
+  security_groups       = [aws_security_group.jenkins_controller_sg.name]
+  iam_instance_profile  = aws_iam_instance_profile.jenkins-controller-instance-profile.name
 
   connection {
     type        = "ssh"
     user        = "ec2-user"
-    private_key = file("../tf-packer")
+    private_key = file("../../../tf-packer")
     host        = self.private_ip
+  }
+
+  provisioner "file" {
+    source      = "../../../files/jenkins.yaml"
+    destination = "$HOME/jenkins.yaml"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo cp $HOME/jenkins.yaml /var/lib/jenkins/jenkins.yaml",
+      "sudo cp jenkins.yaml /var/lib/jenkins/jenkins.yaml",
       "sudo chown -R jenkins:jenkins /var/lib/jenkins",
       "sudo systemctl daemon-reload",
       "sudo systemctl restart jenkins"
     ]
   }
-
-  tags = {
-    Name = "jenkins-controller"
-  }
-
-  depends_on = [
-    null_resource.render_template
-  ]
 }
 

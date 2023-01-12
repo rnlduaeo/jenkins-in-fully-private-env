@@ -9,7 +9,7 @@ terraform {
 }
 
 resource "aws_security_group" "jenkins_agent" {
-  name   = "jenkins_agent_sg"
+  name   = "jenkins_agent"
   vpc_id = var.vpc_id
 
   # SSH access from the VPC
@@ -29,17 +29,17 @@ resource "aws_security_group" "jenkins_agent" {
 }
 
 resource "aws_key_pair" "jenkins_agent" {
-  key_name   = "jenkins-ssh"
+  key_name   = "jenkins_agent"
   public_key = file("${path.module}/id_ed25519.pub")
 }
 
 resource "aws_iam_instance_profile" "jenkins_agent" {
-  name = "jenkins-agent-instance-profile"
+  name = "jenkins_agent"
   role = aws_iam_role.jenkins_agent.name
 }
 
 resource "aws_iam_role" "jenkins_agent" {
-  name = "jenkins_agent_role"
+  name = "jenkins_agent"
   managed_policy_arns = [var.jenkins_agent_iam_policy_ecr, var.jenkins_agent_iam_policy_codecommit, var.jenkins_agent_iam_policy_ssm]
   path = "/"
 
@@ -86,7 +86,7 @@ EOF
 }
 
 resource "aws_launch_template" "jenkins_spot_agent" {
-  name                    = "jenkins-spot-agent-launch-template"
+  name                    = "jenkins_spot_agent"
   image_id                = var.jenkins_agent_ami_id
   instance_type           = "t2.medium"
   key_name                = aws_key_pair.jenkins_agent.key_name
@@ -124,65 +124,76 @@ resource "aws_spot_fleet_request" "jenkins_agent" {
       id = aws_launch_template.jenkins_spot_agent.id
       version = aws_launch_template.jenkins_spot_agent.latest_version
     }    
-    overrides {
+
+    dynamic overrides {
+      for_each = [for s in var.private_subnet_ids: {
+        subnet_id = s
+      }]
+
       instance_type = "t2.large"
-      subnet_id     =  var.private_subnet_ids[0]
+      subnet_id     =  overrides.value.subnet_id
     }
 
-    overrides {
-      instance_type = "t2.large"
-      subnet_id     =  var.private_subnet_ids[1]
-    }
+    
+    # overrides {
+    #   instance_type = "t2.large"
+    #   subnet_id     =  var.private_subnet_ids[0]
+    # }
 
-    overrides {
-      instance_type = "t2.large"
-      subnet_id     =  var.private_subnet_ids[2]
-    }
+    # overrides {
+    #   instance_type = "t2.large"
+    #   subnet_id     =  var.private_subnet_ids[1]
+    # }
 
-    overrides {
-      instance_type = "t2.medium"
-      subnet_id     =  var.private_subnet_ids[0]
-    }
+    # overrides {
+    #   instance_type = "t2.large"
+    #   subnet_id     =  var.private_subnet_ids[2]
+    # }
 
-    overrides {
-      instance_type = "t2.medium"
-      subnet_id     =  var.private_subnet_ids[1]
-    }
+    # overrides {
+    #   instance_type = "t2.medium"
+    #   subnet_id     =  var.private_subnet_ids[0]
+    # }
 
-    overrides {
-      instance_type = "t2.medium"
-      subnet_id     =  var.private_subnet_ids[2]
-    }
+    # overrides {
+    #   instance_type = "t2.medium"
+    #   subnet_id     =  var.private_subnet_ids[1]
+    # }
 
-    overrides {
-      instance_type = "t3.large"
-      subnet_id     =  var.private_subnet_ids[0]
-    }
+    # overrides {
+    #   instance_type = "t2.medium"
+    #   subnet_id     =  var.private_subnet_ids[2]
+    # }
 
-    overrides {
-      instance_type = "t3.large"
-      subnet_id     =  var.private_subnet_ids[1]
-    }
+    # overrides {
+    #   instance_type = "t3.large"
+    #   subnet_id     =  var.private_subnet_ids[0]
+    # }
 
-    overrides {
-      instance_type = "t3.large"
-      subnet_id     =  var.private_subnet_ids[2]
-    }
+    # overrides {
+    #   instance_type = "t3.large"
+    #   subnet_id     =  var.private_subnet_ids[1]
+    # }
 
-    overrides {
-      instance_type = "t3.medium"
-      subnet_id     =  var.private_subnet_ids[0]
-    }
+    # overrides {
+    #   instance_type = "t3.large"
+    #   subnet_id     =  var.private_subnet_ids[2]
+    # }
 
-    overrides {
-      instance_type = "t3.medium"
-      subnet_id     =  var.private_subnet_ids[1]
-    }
+    # overrides {
+    #   instance_type = "t3.medium"
+    #   subnet_id     =  var.private_subnet_ids[0]
+    # }
 
-    overrides {
-      instance_type = "t3.medium"
-      subnet_id     =  var.private_subnet_ids[2]
-    }
+    # overrides {
+    #   instance_type = "t3.medium"
+    #   subnet_id     =  var.private_subnet_ids[1]
+    # }
+
+    # overrides {
+    #   instance_type = "t3.medium"
+    #   subnet_id     =  var.private_subnet_ids[2]
+    # }
   }
 }
 

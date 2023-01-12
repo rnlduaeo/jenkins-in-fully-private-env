@@ -34,12 +34,12 @@ resource "aws_key_pair" "jenkins_agent" {
 }
 
 resource "aws_iam_instance_profile" "jenkins_agent" {
-  name = "jenkins-agent-instance-profile"
+  name = "jenkins_agent"
   role = aws_iam_role.jenkins_agent.name
 }
 
 resource "aws_iam_role" "jenkins_agent" {
-  name = "jenkins_agent_role"
+  name = "jenkins_agent"
   managed_policy_arns = [var.jenkins_agent_iam_policy_ecr, var.jenkins_agent_iam_policy_codecommit, var.jenkins_agent_iam_policy_ssm]
   path = "/"
 
@@ -86,7 +86,7 @@ EOF
 }
 
 resource "aws_launch_template" "jenkins_spot_agent" {
-  name                    = "jenkins-spot-agent-launch-template"
+  name                    = "jenkins_spot_agent"
   image_id                = var.jenkins_agent_ami_id
   instance_type           = "t2.medium"
   key_name                = aws_key_pair.jenkins_agent.key_name

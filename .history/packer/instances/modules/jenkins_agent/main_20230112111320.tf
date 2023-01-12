@@ -8,7 +8,7 @@ terraform {
   required_version = ">= 0.14.5"
 }
 
-resource "aws_security_group" "jenkins_agent" {
+resource "aws_security_group" "jenkins_agent_sg" {
   name   = "jenkins_agent_sg"
   vpc_id = var.vpc_id
 
@@ -28,17 +28,17 @@ resource "aws_security_group" "jenkins_agent" {
   }
 }
 
-resource "aws_key_pair" "jenkins_agent" {
+resource "aws_key_pair" "jenkins-ssh" {
   key_name   = "jenkins-ssh"
   public_key = file("${path.module}/id_ed25519.pub")
 }
 
 resource "aws_iam_instance_profile" "jenkins_agent" {
-  name = "jenkins-agent-instance-profile"
-  role = aws_iam_role.jenkins_agent.name
+  name = "jenkins_agent"
+  role = aws_iam_role.jenkins_agent_role.name
 }
 
-resource "aws_iam_role" "jenkins_agent" {
+resource "aws_iam_role" "jenkins_agent_role" {
   name = "jenkins_agent_role"
   managed_policy_arns = [var.jenkins_agent_iam_policy_ecr, var.jenkins_agent_iam_policy_codecommit, var.jenkins_agent_iam_policy_ssm]
   path = "/"
@@ -86,11 +86,11 @@ EOF
 }
 
 resource "aws_launch_template" "jenkins_spot_agent" {
-  name                    = "jenkins-spot-agent-launch-template"
+  name                    = "jenkins_spot_agent"
   image_id                = var.jenkins_agent_ami_id
   instance_type           = "t2.medium"
-  key_name                = aws_key_pair.jenkins_agent.key_name
-  vpc_security_group_ids  = [aws_security_group.jenkins_agent.id]
+  key_name                = aws_key_pair.jenkins-ssh.key_name
+  vpc_security_group_ids  = [aws_security_group.jenkins_agent_sg.id]
 
   block_device_mappings {
     device_name = "/dev/sda1"
@@ -110,7 +110,7 @@ resource "aws_launch_template" "jenkins_spot_agent" {
 
 
 # Request a Spot fleet
-resource "aws_spot_fleet_request" "jenkins_agent" {
+resource "aws_spot_fleet_request" "jenkins-agent-spot-request" {
   excess_capacity_termination_policy  = "NoTermination"
   allocation_strategy                 = "priceCapacityOptimized"
   fleet_type                          = "maintain"
@@ -123,7 +123,8 @@ resource "aws_spot_fleet_request" "jenkins_agent" {
     launch_template_specification {
       id = aws_launch_template.jenkins_spot_agent.id
       version = aws_launch_template.jenkins_spot_agent.latest_version
-    }    
+    }
+
     overrides {
       instance_type = "t2.large"
       subnet_id     =  var.private_subnet_ids[0]

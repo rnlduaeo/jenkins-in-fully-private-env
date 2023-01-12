@@ -16,9 +16,9 @@ resource "null_resource" "render_template" {
 tee ${path.module}/files/jenkins.yaml <<ENDF
 ${templatefile("${path.module}/files/jenkins.yaml.tpl", 
               {
-                jenkins_agent_private_key = data.aws_ssm_parameter.jenkins_spot_agent_ssh_key.value,
-                jenkins_pwd               = data.aws_ssm_parameter.jenkins_pwd.value,
-                spot_request_id           = var.spot_request_id
+                jenkins-agent-private-key = data.aws_ssm_parameter.jenkins_spot_agent_ssh_key.value,
+                jenkins-pwd               = data.aws_ssm_parameter.jenkins_pwd.value,
+                spot-request-id           = var.spot_request_id
               })}
 EOF
   }

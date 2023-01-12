@@ -16,9 +16,9 @@ resource "null_resource" "render_template" {
 tee ${path.module}/files/jenkins.yaml <<ENDF
 ${templatefile("${path.module}/files/jenkins.yaml.tpl", 
               {
-                jenkins_agent_private_key = data.aws_ssm_parameter.jenkins_spot_agent_ssh_key.value,
-                jenkins_pwd               = data.aws_ssm_parameter.jenkins_pwd.value,
-                spot_request_id           = var.spot_request_id
+                jenkins-agent-private-key = data.aws_ssm_parameter.jenkins_spot_agent_ssh_key.value,
+                jenkins-pwd               = data.aws_ssm_parameter.jenkins_pwd.value,
+                spot-request-id           = var.spot_request_id
               })}
 EOF
   }
@@ -58,7 +58,7 @@ resource "aws_security_group" "jenkins_controller_sg" {
 
 resource "aws_iam_instance_profile" "jenkins_controller" {
   name = "jenkins-controller"
-  role = aws_iam_role.jenkins_controller.name
+  role = aws_iam_role.jenkins_controller_role.name
 }
 
 resource "aws_iam_policy" "policy" {
@@ -120,7 +120,7 @@ resource "aws_iam_policy" "policy" {
 })
 }
 
-resource "aws_iam_role" "jenkins_controller" {
+resource "aws_iam_role" "jenkins_controller_role" {
   name = "jenkins_controller_role"
   managed_policy_arns = [aws_iam_policy.policy.arn]
   path = "/"
